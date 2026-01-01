@@ -6,6 +6,6 @@ output "rg" {
     value =data.azurerm_resource_group.example
     }
 
-providers "azurerm" {
+provider "azurerm" {
     features {}
     }

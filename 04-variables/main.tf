@@ -48,7 +48,7 @@ output "o4" {
     }
 
 # we defined v10 in terraform.tfvars and we will now be using it here
-varaible "v10" {}
+variable "v10" {}
 output "o10" {
     value = var.v10
     }

@@ -11,7 +11,7 @@ variable "b1" {
     }
 
 variable "v1" {
-    default "Hello"
+    default = "Hello"
     }
 
 variable "v2" {

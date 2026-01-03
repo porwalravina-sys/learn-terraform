@@ -37,7 +37,13 @@ output "o2" {
     value = "${var.v1} - John"
     }
 
+#access value of a list
 output "o3" {
     value = var.v2[0]
+    }
+
+#access the value of a map
+output "o4" {
+    value =var.v3["cloud"]
     }
 

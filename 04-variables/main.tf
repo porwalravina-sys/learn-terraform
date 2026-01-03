@@ -52,3 +52,12 @@ variable "v10" {}
 output "o10" {
     value = var.v10
     }
+
+# we can also add such values from other tfvars too but we need to pass that input
+#example I have a file called dev.tfvars
+variable "env" {}
+output "env" {
+    value = var.env
+    }
+
+

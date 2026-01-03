@@ -29,11 +29,15 @@ variable "v3" {
          }
     }
 
-output "v1" {
+output "o1" {
     value = var.v1
     }
 
-output "v2" {
+output "o2" {
     value = "${var.v1} - John"
+    }
+
+output "o3" {
+    value = var.v2[0]
     }
 

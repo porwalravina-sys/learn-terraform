@@ -4,6 +4,6 @@ module "sample" {
     y = var.y
     }
 
-variable "x"
+variable "x" {}
 
-variable "y"
+variable "y" {}

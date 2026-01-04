@@ -49,6 +49,11 @@ variable "components" {
             vm_size = "Standard_B2s"
             }
 
+        redis = {
+            name = "redis"
+            vm_size = "Standard_B2s"
+            }
+
         }
     }
 

@@ -35,7 +35,7 @@ resource "azurerm_virtual_machine" "main" {
 
 storage_image_reference {
     id = "/subscriptions/7b6c642c-6e46-418f-b715-e01b2f871413/resourceGroups/trail1/providers/Microsoft
-    .Compute/galleries/LODTrail/images/rhel9-devops-practice/versions/30.11.2024"
+    .Compute/galleries/LODTrail/images/rhel9-devops-practice/versions/04.12.2024"
     }
 
   storage_image_reference {
@@ -61,4 +61,21 @@ storage_image_reference {
   tags = {
     component = var.component
   }
+
+
+  provisioner "remote-exec" {
+
+      connection {
+          type     = "ssh"
+          user     = "testadmin"
+          password = "Password1234!"
+          host     = azurerm_public_ip.main.ip_address
+          }
+
+      inline [
+          "sudo dnf install python3.12-pip -y",
+          "sudo pip3.12 install ansible",
+          "ansible-pull -i localhost, -U https://github.com/raghudevopsb82/roboshop-ansible roboshop.yml -e app_name=${var.component} -e ENV-dev"
+          ]
+      }
 }

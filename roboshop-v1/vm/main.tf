@@ -11,6 +11,33 @@ resource "azurerm_network_interface" "main" {
   }
 }
 
+resource "azurerm_network_security_group" "main" {
+  name                = "${var.component}-nsg"
+  location            = data.azurerm_resource_group.example.location
+  resource_group_name = data.azurerm_resource_group.example.name
+
+  security_rule {
+    name                       = "main"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = {
+    component = var.component
+  }
+}
+
+resource "azurerm_network_interface_security_group_association" "main" {
+  network_interface_id      = azurerm_network_interface.main.id
+  network_security_group_id = azurerm_network_security_group.main.id
+}
+
 resource "azurerm_public_ip" "main" {
   name                = "${var.component}-ip"
   location              = data.azurerm_resource_group.example.location
@@ -34,16 +61,9 @@ resource "azurerm_virtual_machine" "main" {
 
 
 storage_image_reference {
-    id = "/subscriptions/7b6c642c-6e46-418f-b715-e01b2f871413/resourceGroups/trail1/providers/Microsoft
-    .Compute/galleries/LODTrail/images/rhel9-devops-practice/versions/04.12.2024"
+    id = "/subscriptions/7b6c642c-6e46-418f-b715-e01b2f871413/resourceGroups/trail1/providers/Microsoft.Compute/galleries/LODTrail/images/rhel9-devops-practice/versions/04.12.2024"
     }
 
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
-    version   = "latest"
-  }
   storage_os_disk {
     name              = var.component
     caching           = "ReadWrite"
@@ -72,7 +92,7 @@ storage_image_reference {
           host     = azurerm_public_ip.main.ip_address
           }
 
-      inline [
+      inline = [
           "sudo dnf install python3.12-pip -y",
           "sudo pip3.12 install ansible",
           "ansible-pull -i localhost, -U https://github.com/raghudevopsb82/roboshop-ansible roboshop.yml -e app_name=${var.component} -e ENV-dev"

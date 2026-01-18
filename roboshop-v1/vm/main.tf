@@ -81,21 +81,32 @@ storage_image_reference {
   tags = {
     component = var.component
   }
+}
 
 
-  provisioner "remote-exec" {
+resource "azurerm_dns_a_record" "main" {
+  name                = "${var.component}-dev"
+  zone_name           = "azdevopsb82.online"
+  resource_group_name = data.azurerm_resource_group.example.name
+  ttl                 = 10
+  records             = [azurerm_network_interface.main.private_ip_address]
+}
 
-      connection {
-          type     = "ssh"
-          user     = "testadmin"
-          password = "Password1234!"
-          host     = azurerm_public_ip.main.ip_address
+resource "null_resource" "ansible" {
+      provisioner "remote-exec" {
+
+          connection {
+              type     = "ssh"
+              user     = "testadmin"
+              password = "Password1234!"
+              host     = azurerm_public_ip.main.ip_address
+              }
+
+          inline = [
+              "sudo dnf install python3.12-pip -y",
+              "sudo pip3.12 install ansible",
+              "ansible-pull -i localhost, -U https://github.com/raghudevopsb82/roboshop-ansible roboshop.yml -e app_name=${var.component} -e ENV-dev"
+              ]
           }
 
-      inline = [
-          "sudo dnf install python3.12-pip -y",
-          "sudo pip3.12 install ansible",
-          "ansible-pull -i localhost, -U https://github.com/raghudevopsb82/roboshop-ansible roboshop.yml -e app_name=${var.component} -e ENV-dev"
-          ]
-      }
-}
+    }

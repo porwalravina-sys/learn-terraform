@@ -1,3 +1,15 @@
+resource "azurerm_public_ip" "main" {
+  name                = "${var.component}-ip"
+  location              = data.azurerm_resource_group.example.location
+  resource_group_name   = data.azurerm_resource_group.example.name
+  allocation_method   = "Static"
+
+  tags = {
+    component = var.component
+  }
+}
+
+
 resource "azurerm_network_interface" "main" {
   name                = "${var.component}-nic"
   location            = data.azurerm_resource_group.example.location
@@ -38,18 +50,17 @@ resource "azurerm_network_interface_security_group_association" "main" {
   network_security_group_id = azurerm_network_security_group.main.id
 }
 
-resource "azurerm_public_ip" "main" {
-  name                = "${var.component}-ip"
-  location              = data.azurerm_resource_group.example.location
-  resource_group_name   = data.azurerm_resource_group.example.name
-  allocation_method   = "Static"
 
-  tags = {
-    component = var.component
-  }
+resource "azurerm_dns_a_record" "main" {
+  name                = "${var.component}-dev"
+  zone_name           = "azdevopsb82.online"
+  resource_group_name = data.azurerm_resource_group.example.name
+  ttl                 = 10
+  records             = [azurerm_network_interface.main.private_ip_address]
 }
 
 resource "azurerm_virtual_machine" "main" {
+    depends_on          = [azurerm_network_interface_security_group_association.main, azurerm_dns_a_record.main]
   name                  = var.component
   location              = data.azurerm_resource_group.example.location
   resource_group_name   = data.azurerm_resource_group.example.name
@@ -83,17 +94,10 @@ storage_image_reference {
   }
 }
 
-
-resource "azurerm_dns_a_record" "main" {
-  name                = "${var.component}-dev"
-  zone_name           = "azdevopsb82.online"
-  resource_group_name = data.azurerm_resource_group.example.name
-  ttl                 = 10
-  records             = [azurerm_network_interface.main.private_ip_address]
-}
-
 resource "null_resource" "ansible" {
       provisioner "remote-exec" {
+
+          depends_on = [azurerm_virtual_machine.main]
 
           connection {
               type     = "ssh"
